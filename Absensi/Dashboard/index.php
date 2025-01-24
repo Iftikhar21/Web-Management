@@ -93,8 +93,8 @@
               <span class="material-icons-sharp"> analytics </span>
               <div class="middle">
                 <div class="left">
-                  <h3>Jumlah Siswa</h3>
-                  <h1>1.200</h1>
+                  <h3>Jumlah Murid Hadir</h3>
+                  <h1></h1>
                 </div>
               </div>
               <small class="text-muted"> di SMKN 24 Jakarta </small>
