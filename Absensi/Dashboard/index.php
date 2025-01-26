@@ -5,6 +5,8 @@
   $password = "";
   $dbname = "bacs5153_recode";
 
+  date_default_timezone_set('Asia/Jakarta');
+
   // Membuat koneksi
   $conn = new mysqli($servername, $username, $password, $dbname);
 
@@ -24,6 +26,44 @@
           $dataAbsensi[] = $row;
       }
   }
+
+
+  $dateToday = date('Y-m-d');
+  $sqlToday = "SELECT COUNT(*) AS total_hadir 
+             FROM Absensi 
+             WHERE Kehadiran = 'Hadir' 
+             AND DATE(Waktu) = '$dateToday'";
+
+  $resultToday = $conn->query($sqlToday);
+
+  $totalHadir = 0;
+
+  if ($resultToday && $resultToday->num_rows > 0) {
+      $rowToday = $resultToday->fetch_assoc();
+      $totalHadir = $rowToday['total_hadir'];
+  } else {
+      echo $conn->error;
+  }
+
+  $lateToday = date('Y-m-d');
+  $sqlLateToday = "SELECT COUNT(*) AS total_terlambat 
+             FROM Absensi 
+             WHERE Kehadiran = 'Terlambat' 
+             AND DATE(Waktu) = '$lateToday'";
+
+  $resultLateToday = $conn->query($sqlLateToday);
+
+  $totalLate = 0;
+
+  if ($resultLateToday && $resultLateToday->num_rows > 0) {
+      $rowLateToday = $resultLateToday->fetch_assoc();
+      $totalLate = $rowLateToday['total_terlambat'];
+  } else {
+      echo $conn->error;
+  }
+
+  $persentaseKehadiran = ($totalHadir / 1200) * 100;
+  $persentaseTerlambat = ($totalLate / 1200) * 100;
 
   // Menutup koneksi
   $conn->close();
@@ -94,11 +134,40 @@
               <div class="middle">
                 <div class="left">
                   <h3>Jumlah Murid Hadir</h3>
-                  <h1></h1>
+                  <h1><?=$totalHadir;?></h1>
+                </div>
+                <div class="progress">
+                  <svg>
+                    <circle cx="42" cy="42" r="39" style="stroke-dasharray: 245; stroke-dashoffset: <?= 245 - (245 * $persentaseKehadiran / 100); ?>"></circle>
+                  </svg>
+                  <div class="number">
+                    <p><?= round($persentaseKehadiran); ?>%</p>
+                  </div>
                 </div>
               </div>
-              <small class="text-muted"> di SMKN 24 Jakarta </small>
+              <small class="text-muted"> Last 24 Hours </small>
             </div>
+
+            <!-- EXPENSES -->
+            <div class="expenses">
+              <span class="material-icons-sharp"> bar_chart </span>
+              <div class="middle">
+                <div class="left">
+                  <h3>Jumlah Murid Terlambat</h3>
+                  <h1><?=$totalLate;?></h1>
+                </div>
+                <div class="progress">
+                <svg>
+                    <circle cx="42" cy="42" r="39" style="stroke-dasharray: 245; stroke-dashoffset: <?= 245 - (245 * $persentaseTerlambat / 100); ?>"></circle>
+                  </svg>
+                  <div class="number">
+                    <p><?= round($persentaseTerlambat); ?>%</p>
+                  </div>
+                </div>
+              </div>
+              <small class="text-muted"> Last 24 hours </small>
+            </div>
+
           </div>
 
           <h1 class="title">Absensi</h1>
