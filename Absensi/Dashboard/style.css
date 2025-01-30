@@ -13,6 +13,7 @@
   --color-info-dark: #7d8da1;
   --color-info-light: #dce1eb;
   --color-info-light-brown: #EFF3EA;
+  --color-info-brown: #BFBBA9;
   --color-dark: #363949;
   --color-light: rgba(132, 139, 200, 0.18);
   --color-primary-variant: #111e88;
@@ -38,6 +39,7 @@
   --color-dark-variant: #a3bdcc;
   --color-light-green: #23486A;
   --color-info-light-brown: #202528;
+  --color-info-brown: #202528;
   --color-light: rgba(0, 0, 0, 0.4);
   --box-shadow: 0 2rem 3rem var(--color-light);
 }
@@ -52,18 +54,20 @@
   text-decoration: none;
   list-style: none;
   box-sizing: border-box;
+  scroll-behavior: smooth;
 }
 html {
   font-size: 14px;
 }
 body {
   width: 100vw;
-  height: 100vh;
+  height: 100%;
   font-family: poppins, sans-serif;
   font-size: 0.88rem;
   background: var(--color-background);
   user-select: none;
   overflow-x: hidden;
+  overflow-y: hidden;
   color: var(--color-dark);
 }
 .containerr {
@@ -71,7 +75,7 @@ body {
   width: 100%;
   margin: 0 auto;
   gap: 1.8rem;
-  grid-template-columns: 12rem auto 5rem;
+  grid-template-columns: 14rem auto;
 }
 a {
   color: var(--color-dark);
@@ -105,11 +109,12 @@ height: 2.8rem;
 border-radius: 50%;
 overflow: hidden;
 } */
+
 .text-muted {
-  color: var(--color-info-dark);
+  color: var(--color-danger);
 }
 p {
-  color: var(--color-dark-variant);
+  color: var(--color-primary);
 }
 b {
   color: var(--color-dark);
@@ -129,6 +134,7 @@ b {
 
 /* START ASIDE */
 aside {
+  width: auto ;
   background-color: var(--color-info-light-brown);
   height: 100%;
 }
@@ -217,13 +223,15 @@ aside .sidebar .message-count {
 
 /* START MAIN */
 main {
+  /* margin-left: 5rem; */
+  margin-right: 1.4rem;
   margin-top: 1.4rem;
 }
 
 /* START INSIGHTS */
 main .insights {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 25fr);
   gap: 1.6rem;
 }
 main .insights > div {
@@ -245,11 +253,17 @@ main .insights > div span {
   color: var(--color-white);
   font-size: 2rem;
 }
-main .insights > div.expenses span {
-  background: var(--color-danger);
+main .insights > div.jumlah-siswa span {
+  background: var(--color-info-dark);
 }
-main .insights > div.income span {
+main .insights > div.jumlah-absen span {
+  background: var(--color-primary);
+}
+main .insights > div.jumlah-hadir span {
   background: var(--color-success);
+}
+main .insights > div.jumlah-terlambat span {
+  background: var(--color-danger);
 }
 main .insights > div .middle {
   display: flex;
@@ -273,15 +287,15 @@ main .insights svg circle {
   stroke-dasharray: 110;
   stroke-dashoffset: 92;
 }
-main .insights .sales svg circle {
+main .insights .jumlah-siswa svg circle {
   stroke-dashoffset: -30;
   stroke-dasharray: 200;
 }
-main .insights .expenses svg circle {
+main .insights .jumlah-absen svg circle {
   stroke-dashoffset: 20;
   stroke-dasharray: 80;
 }
-main .insights .income svg circle {
+main .insights .jumlah-hadir svg circle {
   stroke-dashoffset: 35;
 }
 main .insights .progress {
@@ -301,6 +315,7 @@ main .insights .progress .number {
   justify-content: center;
   align-items: center;
 }
+
 main .insights small {
   margin-top: 1.6rem;
   display: block;
@@ -309,6 +324,25 @@ main .insights small {
 
 main .title {
   margin-top: 30px;
+}
+
+footer {
+  position: relative;
+  height: auto;
+  background-color: var(--color-info-brown);
+}
+
+footer .footer-container {
+  padding: 1rem;
+}
+
+footer p {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  
+  color: var(--color-white);
 }
 
 .about-container {

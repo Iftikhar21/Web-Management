@@ -27,6 +27,23 @@
       }
   }
 
+  $dateAbsenToday = date('Y-m-d');
+
+  $sqlAbsen = "SELECT COUNT(*) AS total_absen 
+             FROM Absensi 
+             WHERE DATE(Waktu) = '$dateAbsenToday'";
+
+  $resultAbsen = $conn->query($sqlAbsen);
+
+  $totalAbsen = 0;
+
+  if ($resultAbsen && $resultAbsen->num_rows > 0) {
+      $rowAbsen = $resultAbsen->fetch_assoc();
+      $totalAbsen = $rowAbsen['total_absen'];
+  } else {
+      echo $conn->error;
+  }
+
 
   $dateToday = date('Y-m-d');
   $sqlToday = "SELECT COUNT(*) AS total_hadir 
@@ -62,8 +79,9 @@
       echo $conn->error;
   }
 
-  $persentaseKehadiran = ($totalHadir / 1200) * 100;
-  $persentaseTerlambat = ($totalLate / 1200) * 100;
+  $persentaseKehadiran = ($totalHadir / $totalAbsen) * 100;
+  $persentaseTerlambat = ($totalLate / $totalAbsen) * 100;
+  $persentaseAbsen = ($totalAbsen / 1200) * 100;
 
   // Menutup koneksi
   $conn->close();
@@ -104,6 +122,12 @@
           <div class="sidebar">
             <a href="#">
               <span>
+                  <i class='bx bxs-dashboard'></i>
+              </span>
+              <h3>Dashboard</h3>
+            </a>
+            <a href="absensi.php">
+              <span>
                   <i class='bx bxs-bar-chart-alt-2'></i>
               </span>
               <h3>Absensi</h3>
@@ -129,11 +153,49 @@
 
           <div class="insights">
             <!-- SALES -->
-            <div class="sales">
+            <div class="jumlah-siswa">
               <span class="material-icons-sharp"> analytics </span>
               <div class="middle">
                 <div class="left">
-                  <h3>Jumlah Murid Hadir</h3>
+                  <h4 style="margin-top: 15px;">Jumlah Siswa</h4>
+                  <h1>1.200</h1>
+                </div>
+                <!-- <div class="progress">
+                  <svg>
+                    <circle cx="42" cy="42" r="39" style="stroke-dasharray: 245; stroke-dashoffset: <?= 245 - (245 * $persentaseKehadiran / 100); ?>"></circle>
+                  </svg>
+                  <div class="number">
+                    <p><?= round($persentaseKehadiran); ?>%</p>
+                  </div>
+                </div> -->
+              </div>
+              <small class="text-muted"> Last 24 Hours </small>
+            </div>
+            
+            <div class="jumlah-absen">
+              <span class="material-icons-sharp"> data_usage </span>
+              <div class="middle">
+                <div class="left">
+                  <h4>Jumlah Absen Hari ini</h4>
+                  <h1><?=$totalAbsen?></h1>
+                </div>
+                <div class="progress">
+                  <svg>
+                    <circle cx="42" cy="42" r="39" style="stroke-dasharray: 245; stroke-dashoffset: <?= 245 - (245 * $persentaseAbsen / 100); ?>"></circle>
+                  </svg>
+                  <div class="number">
+                    <p><?= round($persentaseAbsen); ?>%</p>
+                  </div>
+                </div>
+              </div>
+              <small class="text-muted"> Last 24 Hours </small>
+            </div>
+
+            <div class="jumlah-hadir">
+              <span class="material-icons-sharp"> checklist </span>
+              <div class="middle">
+                <div class="left">
+                  <h4>Jumlah Murid Hadir</h4>
                   <h1><?=$totalHadir;?></h1>
                 </div>
                 <div class="progress">
@@ -149,7 +211,7 @@
             </div>
 
             <!-- EXPENSES -->
-            <div class="expenses">
+            <div class="jumlah-terlambat">
               <span class="material-icons-sharp"> bar_chart </span>
               <div class="middle">
                 <div class="left">
@@ -167,103 +229,16 @@
               </div>
               <small class="text-muted"> Last 24 hours </small>
             </div>
-
           </div>
-
-          <h1 class="title">Absensi</h1>
-
-          <div class="table-container">
-              <table id="absensiTable" class="table table-bordered rounded-3">
-                <thead>
-                    <tr class="title">
-                        <th>No</th>
-                        <th>Nama</th>
-                        <th>NISN</th>
-                        <th>Android ID</th>
-                        <th>Kelas</th>
-                        <th>Jurusan</th>
-                        <th>Tanggal</th>
-                        <th>Status</th>
-                        <th>Catatan</th>
-                        <th>Mood</th>
-                    </tr>
-                    <tr class="filter-row">
-                        <td></td>
-                        <td><input type="text" id="filterNama" class="form-control" placeholder="Cari Nama"></td>
-                        <td><input type="text" id="filterNISN" class="form-control" placeholder="Cari NISN"></td>
-                        <td><input type="text" id="filterAndroidID" class="form-control" placeholder="Cari Android Id"></td>
-                        <td>
-                            <select id="filterKelas" class="form-select">
-                                <option value="">All</option>
-                                <option value="X">X</option>
-                                <option value="XI">XI</option>
-                                <option value="XII">XII</option>
-                            </select>
-                        </td>
-                        <td>
-                            <select id="filterJurusan" class="form-select">
-                                <option value="">All</option>
-                                <option value="RPL 1">RPL 1</option>
-                                <option value="RPL 2">RPL 2</option>
-                                <option value="TBG 2">TBG 2</option>
-                                <option value="^TBG 3$">TBG 3</option>
-                                <option value="^PH 1$">PH 1</option>
-                                <option value="^PH 2$">PH 2</option>
-                                <option value="^PH 3$">PH 3</option>
-                                <option value="^TBS 1$">TBS 1</option>
-                                <option value="^TBS 2$">TBS 2</option>
-                                <option value="^TBS 3$">TBS 3</option>
-                                <option value="^ULW$">ULW</option>
-                            </select>
-                        </td>
-                        <td><input type="date" id="filterTanggal" class="form-control"></td>
-                        <td>
-                            <select id="filterKehadiran" class="form-select">
-                                <option value="">All</option>
-                                <option value="Hadir">Hadir</option>
-                                <option value="Sakit">Sakit</option>
-                                <option value="Izin">Izin</option>
-                                <option value="Terlambat">Terlambat</option>
-                            </select>
-                        </td>
-                        <td><input type="text" id="filterCatatan" class="form-control" placeholder="Cari Catatan"></td>
-                        <td>
-                            <select id="filterMood" class="form-select">
-                                <option value="">All</option>
-                                <option value="Baik">Baik</option>
-                                <option value="Biasa Aja">Biasa Aja</option>
-                                <option value="Buruk">Buruk</option>
-                            </select>
-                        </td>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php $i = 1; 
-                        foreach ($dataAbsensi as $row): ?>
-                    <tr>
-                        <td><?=$i++?></td>
-                        <td><?= htmlspecialchars($row['Nama']); ?></td>
-                        <td><?= htmlspecialchars($row['NISN']); ?></td>
-                        <td><?= htmlspecialchars($row['AndroidID']); ?></td>
-                        <td><?= htmlspecialchars($row['Kelas']); ?></td>
-                        <td><?= htmlspecialchars($row['Jurusan']); ?></td>
-                        <td><?= htmlspecialchars($row['Waktu']); ?></td>
-                        <!-- <td><?= htmlspecialchars($row['Kehadiran']); ?></td> -->
-                        <td>
-                            <span class="status-badge status-<?= strtolower(htmlspecialchars($row['Kehadiran'])); ?>">
-                                <?= htmlspecialchars($row['Kehadiran']); ?>
-                            </span>
-                        </td>
-                        <td><?= htmlspecialchars($row['Catatan']); ?></td>
-                        <td><?= htmlspecialchars($row['Mood']); ?></td>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-          </div>
-
         </main>
       </div>
+      <footer id="footer">
+          <div class="footer-container">
+              <div class="footer-content">
+                  <p>© 2023 Re-Code Corporation. All rights reserved.</p>
+              </div>
+          </div>
+      </footer>
 
       <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

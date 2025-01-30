@@ -31,6 +31,12 @@
 
       <div class="sidebar">
         <a href="index.php">
+              <span>
+              <i class='bx bxs-dashboard'></i>
+              </span>
+              <h3>Dashboard</h3>
+            </a>
+        <a href="absensi.php">
           <span>
             <i class='bx bxs-bar-chart-alt-2'></i>
           </span>
