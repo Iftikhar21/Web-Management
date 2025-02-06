@@ -1,14 +1,14 @@
   <?php
   // Konfigurasi database
-  $servername = "localhost";
-  $username = "root";
-  $password = "";
-  $dbname = "bacs5153_recode";
+    $servername = "localhost";
+    $username = "root";
+    $password = "";
+    $dbname = "bacs5153_recode";
 
-  date_default_timezone_set('Asia/Jakarta');
+      date_default_timezone_set('Asia/Jakarta');
 
-  // Membuat koneksi
-  $conn = new mysqli($servername, $username, $password, $dbname);
+      // Membuat koneksi
+      $conn = new mysqli($servername, $username, $password, $dbname);
 
   // Mengecek koneksi
   if ($conn->connect_error) {
@@ -78,11 +78,68 @@
   } else {
       echo $conn->error;
   }
+  
+    $today = date('Y-m-d');  // Get today's date
+    
+    $sqlBadMoodToday = "SELECT COUNT(*) AS total_buruk 
+                        FROM Absensi 
+                        WHERE Mood = 'Buruk' 
+                        AND DATE(Waktu) = '$today'";  // Adjusting Mood to 'buruk' for bad mood
+    
+    $resultBadMoodToday = $conn->query($sqlBadMoodToday);
+    
+    $totalBadMood = 0;  // Initialize count variable
+    
+    if ($resultBadMoodToday && $resultBadMoodToday->num_rows > 0) {
+        $rowBadMoodToday = $resultBadMoodToday->fetch_assoc();
+        $totalBadMood = $rowBadMoodToday['total_buruk'];  // Retrieve the count of students with a bad mood
+    } else {
+        echo $conn->error;  // Display error if query fails
+    }
 
-  $persentaseKehadiran = ($totalHadir / $totalAbsen) * 100;
-  $persentaseTerlambat = ($totalLate / $totalAbsen) * 100;
-  $persentaseAbsen = ($totalAbsen / 1200) * 100;
 
+
+    $persentaseKehadiran = ($totalAbsen > 0) ? ($totalHadir / $totalAbsen) * 100 : 0;
+    $persentaseTerlambat = ($totalAbsen > 0) ? ($totalLate / $totalAbsen) * 100 : 0;
+    $persentaseAbsen = ($totalAbsen > 0) ? ($totalAbsen / 1214) * 100 : 0;
+    
+    $persentaseBadMood = ($totalAbsen > 0) ? ($totalBadMood / $totalAbsen) * 100: 0;
+    
+    $tidakHadir = 1214 - $totalAbsen;
+    
+    $persentaseTidakHadir = ($totalAbsen > 0) ? ($tidakHadir / 1214) * 100 : 0;
+
+    
+    $sqlLateStudents = "SELECT Nama, Kelas, Jurusan, Waktu FROM Absensi WHERE Kehadiran = 'Terlambat' AND DATE(Waktu) = '$lateToday'";
+    $resultLateStudents = $conn->query($sqlLateStudents);
+    
+    $lateStudents = [];
+    if ($resultLateStudents && $resultLateStudents->num_rows > 0) {
+        while ($row = $resultLateStudents->fetch_assoc()) {
+            $lateStudents[] = $row;
+        }
+    } else {
+        echo $conn->error;
+    }
+
+    // Query to fetch students with a bad mood
+    $sqlBadMoodStudents = "SELECT Nama, Kelas, Jurusan, Catatan FROM Absensi WHERE Mood = 'Buruk' AND DATE(Waktu) = '$today'";  // Make sure 'Mood' is checked for 'Buruk'
+    
+    // Execute the query
+    $resultBadMoodStudents = $conn->query($sqlBadMoodStudents);
+    
+    // Initialize an array to hold the students with bad mood
+    $badMoodStudents = [];
+    
+    if ($resultBadMoodStudents && $resultBadMoodStudents->num_rows > 0) {
+        // Fetch each student data into the array
+        while ($row = $resultBadMoodStudents->fetch_assoc()) {
+            $badMoodStudents[] = $row;  // Add the student details to the array
+        }
+    } else {
+        // If query failed, show error
+        echo $conn->error;
+    }
   // Menutup koneksi
   $conn->close();
   ?>
@@ -142,10 +199,15 @@
         </aside>
 
         <main>
-          <div class="theme-toggler" id="themeToggler">
-              <span class="material-icons-sharp active"> light_mode </span>
-              <span class="material-icons-sharp"> dark_mode </span>
+          <div class="theme-bar d-flex align-items-center">
+          <div class="theme-toggler me-3" id="themeToggler">
+            <span class="material-icons-sharp active"> light_mode </span>
+            <span class="material-icons-sharp"> dark_mode </span>
           </div>
+          <div class="real-time-clock">
+            <h3 id="clock" class="m-0"></h3>
+          </div>
+        </div>
           
           <div class="refresh-data" id="refresh_data">
               <span class="material-icons-sharp" onclick="refreshPage()"> refresh </span>
@@ -158,7 +220,7 @@
               <div class="middle">
                 <div class="left">
                   <h4 style="margin-top: 15px;">Jumlah Siswa</h4>
-                  <h1>1.200</h1>
+                  <h1>1.214</h1>
                 </div>
                 <!-- <div class="progress">
                   <svg>
@@ -176,15 +238,15 @@
               <span class="material-icons-sharp"> data_usage </span>
               <div class="middle">
                 <div class="left">
-                  <h4>Jumlah Absen Hari ini</h4>
-                  <h1><?=$totalAbsen?></h1>
+                  <h4>Jumlah Yang Belum Absen</h4>
+                  <h1><?=$tidakHadir?></h1>
                 </div>
                 <div class="progress">
                   <svg>
-                    <circle cx="42" cy="42" r="39" style="stroke-dasharray: 245; stroke-dashoffset: <?= 245 - (245 * $persentaseAbsen / 100); ?>"></circle>
+                    <circle cx="42" cy="42" r="39" style="stroke-dasharray: 245; stroke-dashoffset: <?= 245 - (245 * $persentaseTidakHadir / 100); ?>"></circle>
                   </svg>
                   <div class="number">
-                    <p><?= round($persentaseAbsen); ?>%</p>
+                    <p><?= round($persentaseTidakHadir); ?>%</p>
                   </div>
                 </div>
               </div>
@@ -195,19 +257,22 @@
               <span class="material-icons-sharp"> checklist </span>
               <div class="middle">
                 <div class="left">
-                  <h4>Jumlah Murid Hadir</h4>
-                  <h1><?=$totalHadir;?></h1>
+                  <h4>Jumlah Murid BadMood</h4>
+                  <h1><?=$totalBadMood;?></h1>
                 </div>
                 <div class="progress">
                   <svg>
-                    <circle cx="42" cy="42" r="39" style="stroke-dasharray: 245; stroke-dashoffset: <?= 245 - (245 * $persentaseKehadiran / 100); ?>"></circle>
+                    <circle cx="42" cy="42" r="39" style="stroke-dasharray: 245; stroke-dashoffset: <?= 245 - (245 * $persentaseBadMood / 100); ?>"></circle>
                   </svg>
                   <div class="number">
-                    <p><?= round($persentaseKehadiran); ?>%</p>
+                    <p><?= round($persentaseBadMood); ?>%</p>
                   </div>
                 </div>
               </div>
               <small class="text-muted"> Last 24 Hours </small>
+                <a href="#" class="view-late-students" data-bs-toggle="modal" data-bs-target="#badMoodStudentsModal">
+                    View Late Students
+                  </a>
             </div>
 
             <!-- EXPENSES -->
@@ -228,10 +293,59 @@
                 </div>
               </div>
               <small class="text-muted"> Last 24 hours </small>
+                  <a href="#" class="view-late-students" data-bs-toggle="modal" data-bs-target="#lateStudentsModal">
+                    View Late Students
+                  </a>
             </div>
           </div>
+        <div class="real-time-clock">
+          <h3 id="clock" style="font-weight: bold; color: #333;"></h3>
+        </div>
         </main>
       </div>
+      
+      <div class="modal fade" id="lateStudentsModal" tabindex="-1" aria-labelledby="lateStudentsModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="lateStudentsModalLabel">Students Who Are Late</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <ul id="lateStudentsList">
+                  <!-- List of late students will be populated here -->
+                </ul>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="prevPage">Previous</button>
+                <button type="button" class="btn btn-primary" id="nextPage">Next</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Modal for Bad Mood Students -->
+        <div class="modal fade" id="badMoodStudentsModal" tabindex="-1" aria-labelledby="badMoodStudentsModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="badMoodStudentsModalLabel">Students with Bad Mood</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <ul id="badMoodStudentsList">
+                            <!-- List of students with bad mood will be populated here -->
+                        </ul>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="prevPage">Previous</button>
+                        <button type="button" class="btn btn-primary" id="nextPage">Next</button>
+                    </div>
+                </div>
+            </div>
+        </div>
       <footer id="footer">
           <div class="footer-container">
               <div class="footer-content">
@@ -246,6 +360,126 @@
       <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
 
       <script src="./main.js"></script>
+        <script>
+            $(document).ready(function () {
+                // When the modal is shown, populate the list of late students
+                $('#lateStudentsModal').on('show.bs.modal', function () {
+                    var lateStudents = <?php echo json_encode($lateStudents); ?>;
+                    var listHtml = '';
+        
+                    if (lateStudents.length > 0) {
+                        lateStudents.forEach(function(student, index) {
+                            listHtml += '<li>' + (index + 1) + '. ' + student.Nama + ' (' + student.Kelas + ' - ' + student.Jurusan + ') - ' + new Date(student.Waktu).toLocaleString() + '</li>';
+                        });
+                    } else {
+                        listHtml = '<li>No late students today.</li>';
+                    }
+        
+                    $('#lateStudentsList').html(listHtml);
+                });
+            });
+        </script>
+        <script>
+            $(document).ready(function () {
+                // When the modal is shown, populate the list of students with bad mood
+                $('#badMoodStudentsModal').on('show.bs.modal', function () {
+                    // Get the list of students with bad mood from PHP
+                    var badMoodStudents = <?php echo json_encode($badMoodStudents); ?>;
+                    var listHtml = '';
+        
+                    if (badMoodStudents.length > 0) {
+                        badMoodStudents.forEach(function(student, index) {
+                            listHtml += '<li>' + (index + 1) + '. ' + student.Nama + ' (' + student.Kelas + ' - ' + student.Jurusan + ') - ' + student.Catatan + '</li>';
+                        });
+                    } else {
+                        listHtml = '<li>No students with bad mood today.</li>';
+                    }
+        
+                    // Update the modal content
+                    $('#badMoodStudentsList').html(listHtml);
+                });
+            });
+        </script>
+        <script>
+            $(document).ready(function () {
+                function paginateList(listId, data) {
+                    let currentPage = 0;
+                    const pageSize = 10;
+            
+                    function renderPage() {
+                        let start = currentPage * pageSize;
+                        let end = start + pageSize;
+                        let listHtml = '';
+            
+                        let pageData = data.slice(start, end);
+                        pageData.forEach((student, index) => {
+                            listHtml += `<li>${start + index + 1}. ${student.Nama} (${student.Kelas} - ${student.Jurusan}) - ${new Date(student.Waktu).toLocaleString()}</li>`;
+                        });
+            
+                        if (pageData.length === 0) {
+                            listHtml = '<li>No data available.</li>';
+                        }
+            
+                        $(listId).html(listHtml);
+                        updateButtons();
+                    }
+            
+                    function updateButtons() {
+                        $("#prevPage").prop("disabled", currentPage === 0);
+                        $("#nextPage").prop("disabled", (currentPage + 1) * pageSize >= data.length);
+                    }
+            
+                    $("#prevPage").click(function () {
+                        if (currentPage > 0) {
+                            currentPage--;
+                            renderPage();
+                        }
+                    });
+            
+                    $("#nextPage").click(function () {
+                        if ((currentPage + 1) * pageSize < data.length) {
+                            currentPage++;
+                            renderPage();
+                        }
+                    });
+            
+                    renderPage();
+                }
+            
+                // Modal untuk siswa terlambat
+                $('#lateStudentsModal').on('show.bs.modal', function () {
+                    var lateStudents = <?php echo json_encode($lateStudents); ?>;
+                    paginateList('#lateStudentsList', lateStudents);
+                });
+            
+                // Modal untuk bad mood students
+                $('#badMoodStudentsModal').on('show.bs.modal', function () {
+                    var badMoodStudents = <?php echo json_encode($badMoodStudents); ?>;
+                    paginateList('#badMoodStudentsList', badMoodStudents);
+                });
+            });
+        </script>
+        <script>
+          function showRealTimeClock() {
+            const now = new Date();
+            const options = {
+              weekday: 'long', 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric', 
+              hour: '2-digit', 
+              minute: '2-digit', 
+              second: '2-digit',
+              timeZone: 'Asia/Jakarta'
+            };
+            
+            const formattedTime = now.toLocaleString('id-ID', options);
+            document.getElementById("clock").textContent = formattedTime;
+          }
+        
+          setInterval(showRealTimeClock, 1000);
+          showRealTimeClock(); // Panggilan awal agar langsung muncul tanpa tunggu interval
+        </script>
 
     </body>
   </html>

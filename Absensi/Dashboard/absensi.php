@@ -1,10 +1,11 @@
+
+text/x-generic absensi.php ( PHP script, UTF-8 Unicode text, with CRLF line terminators )
 <?php
   // Konfigurasi database
-  $servername = "localhost";
-  $username = "root";
-  $password = "";
-  $dbname = "bacs5153_recode";
-
+    $servername = "localhost";
+    $username = "root";
+    $password = "";
+    $dbname = "bacs5153_recode";
   date_default_timezone_set('Asia/Jakarta');
 
   // Membuat koneksi
@@ -208,6 +209,26 @@
       <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
 
       <script src="./main.js"></script>
+      <script>
+      
+      function loadAbsensiData() {
+        $.ajax({
+          url: "absensi.php", // Pastikan file ini hanya mengembalikan tabel tanpa reload halaman
+          type: "GET",
+          success: function (data) {
+            let newTableBody = $(data).find("tbody").html();
+            $("#absensiTable tbody").html(newTableBody);
+          },
+          error: function () {
+            console.error("Gagal memuat data");
+          },
+        });
+      }
+    
+      // Muat ulang data setiap 10 detik (10000 milidetik)
+      setInterval(loadAbsensiData, 5000);
+    </script>
+
 
     </body>
   </html>

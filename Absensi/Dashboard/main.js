@@ -110,3 +110,9 @@ document.addEventListener("DOMContentLoaded", function () {
       table.column(9).search(this.value, true, false).draw();
   });
 });
+
+window.onerror = function(message, source, lineno, colno, error) {
+    console.log("Error ditemukan: ", message, " di ", source, " baris ", lineno);
+};
+
+console.log("main.js berhasil dimuat");
