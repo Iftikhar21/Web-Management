@@ -305,25 +305,25 @@
       </div>
       
       <div class="modal fade" id="lateStudentsModal" tabindex="-1" aria-labelledby="lateStudentsModalLabel" aria-hidden="true">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="lateStudentsModalLabel">Students Who Are Late</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              </div>
-              <div class="modal-body">
-                <ul id="lateStudentsList">
-                  <!-- List of late students will be populated here -->
-                </ul>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="prevPage">Previous</button>
-                <button type="button" class="btn btn-primary" id="nextPage">Next</button>
-              </div>
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="lateStudentsModalLabel">Students Who Are Late</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <ul id="lateStudentsList">
+                <!-- List of late students will be populated here -->
+              </ul>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary" id="prevPage">Previous</button>
+              <button type="button" class="btn btn-primary" id="nextPage">Next</button>
             </div>
           </div>
         </div>
+      </div>
         
         <!-- Modal for Bad Mood Students -->
         <div class="modal fade" id="badMoodStudentsModal" tabindex="-1" aria-labelledby="badMoodStudentsModalLabel" aria-hidden="true">

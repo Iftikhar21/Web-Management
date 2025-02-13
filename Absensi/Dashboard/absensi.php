@@ -1,5 +1,3 @@
-
-text/x-generic absensi.php ( PHP script, UTF-8 Unicode text, with CRLF line terminators )
 <?php
   // Konfigurasi database
     $servername = "localhost";
